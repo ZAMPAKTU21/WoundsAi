@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WoundScan · Clinical Diagnostics</title>
+<link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -684,6 +685,13 @@ function renderProtocol(p) {
 
   document.getElementById("proto-donots").innerHTML = p.doNots.map(d => `
     <div class="do-not-item">${d}</div>`).join("");
+}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => console.log('WoundScan Service Worker Registered!'))
+      .catch((err) => console.log('Service Worker Failed:', err));
+  });
 }
 </script>
 </body>
