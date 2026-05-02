@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WoundScan · Clinical Diagnostics</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #F0F2F5;
+  --surface:  #ffffff;
+  --border:   rgba(0,0,0,0.09);
+  --border-md:rgba(0,0,0,0.16);
+  --text:     #111827;
+  --muted:    #6B7280;
+  --faint:    #9CA3AF;
+  --radius:   14px;
+  --radius-sm:8px;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* HEADER */
+header {
+  width: 100%; max-width: 1180px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: #0C447C;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-mark svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 1.8; }
+.header-title { font-size: 15px; font-weight: 600; color: #0C447C; }
+.header-sub   { font-size: 11px; color: var(--faint); margin-top: 1px; }
+.model-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: 20px; padding: 6px 12px; font-size: 11px; color: var(--muted);
+}
+.pulse { width: 7px; height: 7px; border-radius: 50%; background: #22C55E; flex-shrink: 0; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* GRID */
+.main-grid {
+  width: 100%; max-width: 1180px;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+}
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.card-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  color: var(--faint);
+  border-bottom: 0.5px solid var(--border);
+  padding-bottom: 10px;
+}
+
+/* MEDIA BOX */
+.media-box {
+  background: #0D1117; border-radius: 10px;
+  aspect-ratio: 4/3; overflow: hidden; position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.media-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  color: #374151; font-size: 12px;
+}
+.icon-ring {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid #1F2937;
+  display: flex; align-items: center; justify-content: center;
+}
+.media-placeholder svg { width: 22px; height: 22px; stroke: #4B5563; fill: none; stroke-width: 1.5; }
+#webcam-container, #image-preview {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+#webcam-container { display: none; }
+#image-preview    { display: none; }
+
+.scan-ring {
+  display: none; position: absolute; inset: 0;
+  pointer-events: none; align-items: center; justify-content: center;
+}
+.scan-ring.active { display: flex; }
+.scan-ring::before {
+  content: ''; width: 90px; height: 90px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.55);
+  animation: scanpulse 1.2s ease-out infinite;
+}
+@keyframes scanpulse { 0%{transform:scale(.8);opacity:1} 100%{transform:scale(2.2);opacity:0} }
+
+/* BUTTONS */
+.btn-row { display: flex; gap: 8px; }
+button, label.btn {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: inherit; font-size: 12px; font-weight: 500;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 0.5px solid var(--border-md);
+  background: var(--surface); color: var(--text);
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+button:hover, label.btn:hover { background: #F3F4F6; border-color: #185FA5; }
+button svg, label.btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; flex-shrink: 0; }
+button.primary { background: #185FA5; color: #fff; border-color: #185FA5; }
+button.primary:hover { background: #0C447C; border-color: #0C447C; }
+#capture-btn { display: none; }
+input[type="file"] { display: none; }
+
+/* CHIPS */
+.chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: #F9FAFB;
+  border: 0.5px solid var(--border); border-radius: var(--radius-sm); font-size: 12px;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.chip-key  { color: var(--muted); }
+.chip-val  { font-weight: 500; color: var(--text); margin-left: auto; font-size: 11px; }
+
+/* LOCK */
+.lock-block {
+  margin-top: auto;
+  background: #F0FDF4; border: 0.5px solid #BBF7D0;
+  border-radius: 10px; padding: 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+}
+.lock-block svg { width: 20px; height: 20px; stroke: #15803D; fill: none; stroke-width: 1.5; }
+.lock-block p { font-size: 11px; color: #15803D; text-align: center; }
+
+/* RESULT HERO */
+.result-hero {
+  border-radius: 10px; padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: background .4s, border-color .4s;
+  background: #EFF6FF; border: 0.5px solid #BFDBFE;
+}
+.wound-icon { font-size: 28px; line-height: 1; }
+#output {
+  font-size: 22px; font-weight: 600; text-align: center;
+  color: #1E40AF; transition: color .3s;
+}
+.severity-badge {
+  display: none; font-size: 10px; font-weight: 600;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px;
+}
+#confidence-label { font-size: 11px; color: #3B82F6; }
+
+/* BAR CHART */
+.section-title { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--faint); }
+.bars { display: flex; gap: 5px; height: 70px; align-items: flex-end; }
+.bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 5px; transition: height .4s ease, background .3s; background: #E5E7EB; }
+.bar-labels { display: flex; gap: 5px; margin-top: 4px; }
+.bar-lbl { flex: 1; font-size: 9px; text-align: center; color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* PROTOCOL PANEL */
+.protocol-panel {
+  grid-column: 1 / -1;
+  display: none; flex-direction: column; gap: 0;
+  overflow: hidden; padding: 0 !important;
+}
+.protocol-panel.visible { display: flex; }
+
+.protocol-header {
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.ph-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.ph-title { font-size: 17px; font-weight: 600; }
+.ph-sub   { font-size: 12px; margin-top: 2px; opacity: .85; }
+.ph-badge {
+  margin-left: auto; font-size: 10px; font-weight: 600;
+  letter-spacing: .8px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px; flex-shrink: 0;
+}
+
+.protocol-body {
+  background: var(--surface);
+  border: 0.5px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 20px;
+}
+
+.col-title {
+  font-size: 10px; font-weight: 600; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+
+/* Steps */
+.step-item { display: flex; gap: 12px; margin-bottom: 14px; }
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+}
+.step-text { font-size: 13px; color: var(--text); line-height: 1.6; padding-top: 3px; }
+
+/* Supplies */
+.supply-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; background: #F9FAFB;
+  border: 0.5px solid var(--border); border-radius: var(--radius-sm);
+  margin-bottom: 8px; font-size: 12px; cursor: pointer; transition: background .15s;
+}
+.supply-item:hover { background: #F3F4F6; }
+.supply-check {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid #D1D5DB; transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.supply-item.checked .supply-check {
+  background: #185FA5; border-color: #185FA5; color: #fff;
+  font-size: 10px; font-weight: 700;
+}
+.supply-item.checked .supply-check::after { content: '✓'; }
+.supply-item.checked span { color: var(--faint); text-decoration: line-through; }
+
+/* Warnings */
+.warn-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 9px 12px; border-radius: var(--radius-sm);
+  margin-bottom: 7px; font-size: 12px; line-height: 1.5;
+  background: #FFF7ED; border: 0.5px solid #FED7AA; color: #92400E;
+}
+.warn-dot { width: 6px; height: 6px; border-radius: 50%; background: #F97316; flex-shrink: 0; margin-top: 5px; }
+
+.do-not-box {
+  background: #FEF2F2; border: 0.5px solid #FECACA;
+  border-radius: var(--radius-sm); padding: 12px; margin-top: 10px;
+}
+.dn-title { font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: #B91C1C; margin-bottom: 8px; }
+.do-not-item { font-size: 12px; color: #7F1D1D; margin-bottom: 5px; display: flex; gap: 8px; line-height: 1.5; }
+.do-not-item::before { content: '✕'; font-weight: 700; color: #EF4444; flex-shrink: 0; }
+
+@media (max-width: 860px) {
+  .main-grid { grid-template-columns: 1fr; }
+  .protocol-body { grid-template-columns: 1fr; }
+  .protocol-panel { grid-column: 1; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    </div>
+    <div>
+      <div class="header-title">WoundScan</div>
+      <div class="header-sub">Clinical Wound Diagnostics · Fully Offline</div>
+    </div>
+  </div>
+  <div class="model-badge">
+    <div class="pulse"></div>
+    <span id="model-status-header">Loading model…</span>
+  </div>
+</header>
+
+<div class="main-grid">
+
+  <!-- PANEL 1: Scan -->
+  <div class="card">
+    <div class="card-label">Wound scanning interface</div>
+    <div class="media-box" id="media-box">
+      <div class="media-placeholder" id="placeholder">
+        <div class="icon-ring">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="12" cy="12" r="3.5"/></svg>
+        </div>
+        <span>No input source active</span>
+      </div>
+      <div id="webcam-container"></div>
+      <img id="image-preview" alt="Wound image">
+      <div class="scan-ring" id="scan-ring"></div>
+    </div>
+    <div class="btn-row">
+      <button onclick="startWebcam()">
+        <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="15" rx="2"/><circle cx="12" cy="13" r="4"/></svg>
+        Start camera
+      </button>
+      <label class="btn">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload image
+        <input type="file" accept="image/*" onchange="handleUpload(event)">
+      </label>
+    </div>
+    <button id="capture-btn" class="primary" onclick="captureAndAnalyze()">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Capture &amp; analyze
+    </button>
+  </div>
+
+  <!-- PANEL 2: Status + Result -->
+  <div class="card">
+    <div class="card-label">System &amp; diagnostic</div>
+    <div class="chip">
+      <div class="dot" style="background:#22C55E;"></div>
+      <span class="chip-key">AI engine</span>
+      <span class="chip-val">Active · offline</span>
+    </div>
+    <div class="chip">
+      <div class="dot" style="background:#185FA5;" id="model-dot"></div>
+      <span class="chip-key">Model</span>
+      <span class="chip-val" id="model-status">Loading…</span>
+    </div>
+    <div class="chip">
+      <div class="dot" style="background:#9CA3AF;"></div>
+      <span class="chip-key">Last scan</span>
+      <span class="chip-val" id="last-scan">—</span>
+    </div>
+
+    <div class="result-hero" id="result-hero">
+      <div class="wound-icon" id="wound-icon">🩺</div>
+      <div id="output">Standby</div>
+      <div class="severity-badge" id="severity-badge"></div>
+      <div id="confidence-label">Awaiting scan</div>
+    </div>
+
+    <div>
+      <div class="section-title" style="margin-bottom:8px;">Confidence distribution</div>
+      <div class="bars">
+        <div class="bar" id="bar0"></div>
+        <div class="bar" id="bar1"></div>
+        <div class="bar" id="bar2"></div>
+        <div class="bar" id="bar3"></div>
+        <div class="bar" id="bar4"></div>
+      </div>
+      <div class="bar-labels">
+        <div class="bar-lbl" id="lbl0">—</div>
+        <div class="bar-lbl" id="lbl1">—</div>
+        <div class="bar-lbl" id="lbl2">—</div>
+        <div class="bar-lbl" id="lbl3">—</div>
+        <div class="bar-lbl" id="lbl4">—</div>
+      </div>
+    </div>
+
+    <div class="lock-block">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <p>All data processed locally · </p>
+    </div>
+  </div>
+
+  <!-- PROTOCOL PANEL — spans full width -->
+  <div class="card protocol-panel" id="protocol-panel">
+    <div class="protocol-header" id="proto-header">
+      <div class="ph-icon" id="proto-icon"></div>
+      <div>
+        <div class="ph-title" id="proto-title"></div>
+        <div class="ph-sub"   id="proto-sub"></div>
+      </div>
+      <div class="ph-badge" id="proto-badge"></div>
+    </div>
+    <div class="protocol-body">
+      <div>
+        <div class="col-title">First aid steps</div>
+        <div id="proto-steps"></div>
+      </div>
+      <div>
+        <div class="col-title">Required supplies</div>
+        <div id="proto-supplies"></div>
+      </div>
+      <div>
+        <div class="col-title">Warning signs &amp; do-nots</div>
+        <div id="proto-warnings"></div>
+        <div class="do-not-box">
+          <div class="dn-title">Do not</div>
+          <div id="proto-donots"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script>
+/* ── PROTOCOLS DATABASE ── */
+const PROTOCOLS = {
+  abrasion: {
+    label: "Abrasion", icon: "🩹", severity: "Mild",
+    sevBg: "#F0FDF4", sevText: "#166534", sevBorder: "#BBF7D0",
+    heroBg: "#F0FDF4", heroBorder: "#86EFAC",
+    barColor: "#22C55E",
+    hdrBg: "#DCFCE7", titleColor: "#14532D", subColor: "#16A34A",
+    badgeBg: "#BBF7D0", badgeText: "#166534",
+    stepNumBg: "#BBF7D0", stepNumText: "#14532D",
+    description: "Skin scraped against rough surface · superficial dermis damage",
+    steps: [
+      "Wash hands or put on clean gloves before touching the wound.",
+      "Rinse the wound under clean running water for at least 5 minutes to flush all debris.",
+      "Gently clean around the wound with mild soap. Do not scrub inside the wound bed.",
+      "Remove visible grit with sterile tweezers; rinse again after each piece removed.",
+      "Pat the wound dry with a sterile gauze pad using gentle dabbing pressure.",
+      "Apply a thin layer of antibiotic ointment (e.g., Neosporin) across the wound surface.",
+      "Cover with a non-stick sterile dressing. Change daily or whenever wet or soiled."
+    ],
+    supplies: ["Clean gloves","Sterile saline or clean water","Mild soap","Sterile gauze pads","Sterile tweezers","Antibiotic ointment","Non-stick sterile dressing","Medical tape"],
+    warnings: ["Redness spreading beyond wound edge after 24 hrs","Swelling or warmth that worsens rather than improves","Yellow or green discharge from the wound","Fever above 38°C / 100.4°F","No visible healing after 5–7 days"],
+    doNots: ["Scrub the wound — it damages tissue and delays healing","Use hydrogen peroxide or iodine directly on wound tissue","Cover tightly without airflow if wound is heavily oozing"]
+  },
+  burn: {
+    label: "Burn", icon: "🔥", severity: "Moderate – Severe",
+    sevBg: "#FEF2F2", sevText: "#991B1B", sevBorder: "#FECACA",
+    heroBg: "#FFF7ED", heroBorder: "#FED7AA",
+    barColor: "#EF4444",
+    hdrBg: "#FEE2E2", titleColor: "#7F1D1D", subColor: "#DC2626",
+    badgeBg: "#FECACA", badgeText: "#991B1B",
+    stepNumBg: "#FECACA", stepNumText: "#7F1D1D",
+    description: "Thermal tissue injury · depth and size determine care urgency",
+    steps: [
+      "Remove the patient from the heat source immediately. Ensure rescuer safety first.",
+      "Cool the burn with cool (NOT ice-cold) running water for a minimum of 20 minutes.",
+      "Remove clothing or jewellery near the burn ONLY if not adhered to the skin.",
+      "Cover loosely with clean cling film or a non-fluffy sterile dressing. Do not wrap tightly.",
+      "Elevate the burned area above heart level to reduce swelling where possible.",
+      "Administer paracetamol or ibuprofen for pain if patient is conscious and able to swallow.",
+      "Seek emergency care for burns larger than the patient's palm, or on face, hands, or genitals."
+    ],
+    supplies: ["Cool water source (running)","Sterile burn dressing or clean cling film","Sterile gauze","Non-adhesive dressing","Paracetamol / ibuprofen","Clean scissors (for clothing if needed)"],
+    warnings: ["Burn larger than the patient's hand","White, brown, or black skin indicating deep burns","Burns on face, hands, feet, joints, or genitals","Signs of smoke inhalation: hoarse voice, singed nasal hair","Patient in shock: pale, cold, clammy, or confused","Electrical or chemical burn source"],
+    doNots: ["Apply ice, butter, toothpaste, or oil to the burn","Break blisters — high infection risk","Pull away clothing stuck to burned skin","Use fluffy cotton or adhesive bandages directly on burn surface"]
+  },
+  bruises: {
+    label: "Bruise / Contusion", icon: "🟣", severity: "Mild",
+    sevBg: "#F5F3FF", sevText: "#5B21B6", sevBorder: "#C4B5FD",
+    heroBg: "#F5F3FF", heroBorder: "#C4B5FD",
+    barColor: "#8B5CF6",
+    hdrBg: "#EDE9FE", titleColor: "#3B0764", subColor: "#7C3AED",
+    badgeBg: "#C4B5FD", badgeText: "#5B21B6",
+    stepNumBg: "#C4B5FD", stepNumText: "#3B0764",
+    description: "Blunt trauma causing subcutaneous haemorrhage without skin break",
+    steps: [
+      "Apply an ice pack wrapped in a cloth to the area within 15 minutes of injury.",
+      "Hold for 15–20 minutes. Repeat every 2–3 hours during the first 24 hours.",
+      "Compress the area gently with an elastic bandage to limit swelling. Not too tight.",
+      "Elevate the affected limb above heart level to reduce blood pooling.",
+      "After 48 hours, switch to warm compresses to promote blood reabsorption.",
+      "Administer paracetamol for pain relief if needed. Avoid aspirin in first 48 hrs.",
+      "Monitor size and colour daily. Most bruises fully resolve within 7–14 days."
+    ],
+    supplies: ["Ice pack or cold compress","Cloth wrap for ice protection","Elastic compression bandage","Warm compress (from 48 hrs onward)","Paracetamol (avoid aspirin initially)"],
+    warnings: ["Bruise on head with confusion, vomiting, or vision changes","Very large bruise resulting from a minor impact","Bruise with no recalled mechanism of injury","Rapidly expanding, hard, firm swelling","Severe pain or inability to bear weight — possible fracture"],
+    doNots: ["Apply ice directly to skin — risk of frostbite","Give aspirin in first 48 hrs — may worsen bruising","Massage the bruised area — may increase internal bleeding"]
+  },
+  cuts: {
+    label: "Cut / Laceration", icon: "🩸", severity: "Moderate",
+    sevBg: "#FFF1F2", sevText: "#9F1239", sevBorder: "#FDA4AF",
+    heroBg: "#FFF1F2", heroBorder: "#FDA4AF",
+    barColor: "#F43F5E",
+    hdrBg: "#FFE4E6", titleColor: "#881337", subColor: "#E11D48",
+    badgeBg: "#FECDD3", badgeText: "#9F1239",
+    stepNumBg: "#FECDD3", stepNumText: "#881337",
+    description: "Skin incision from a sharp edge · depth determines management",
+    steps: [
+      "Apply firm direct pressure with sterile gauze or a clean cloth for at least 10 minutes without lifting.",
+      "If blood soaks through, layer more gauze on top — do not remove the first layer.",
+      "Once bleeding slows, gently rinse the cut under clean running water for 5 minutes.",
+      "Clean around wound edges with mild soap. Pat dry with sterile gauze.",
+      "Close small superficial cuts using butterfly strips or steri-strips if edges align cleanly.",
+      "Apply antibiotic ointment and cover with a sterile non-stick dressing.",
+      "Refer to a physician for cuts deeper than 0.5 cm, gaping, or located on face or joints."
+    ],
+    supplies: ["Clean gloves","Sterile gauze pads","Butterfly strips / steri-strips","Antibiotic ointment","Non-stick sterile dressing","Medical tape","Blunt scissors"],
+    warnings: ["Bleeding does not slow after 10–15 minutes of firm pressure","Cut is deep, gaping, or edges will not stay closed","Tendon, fat tissue, or bone visible in wound","Wound caused by animal bite or rusty/contaminated object","Numbness or loss of movement below the cut"],
+    doNots: ["Remove any embedded object from the wound","Probe wound depth with fingers or instruments","Close a heavily contaminated wound — leave open and refer","Apply tourniquet unless trained and severe arterial bleeding is present"]
+  },
+  "venous wounds": {
+    label: "Venous Wound", icon: "💉", severity: "Chronic · Refer",
+    sevBg: "#FFF7ED", sevText: "#92400E", sevBorder: "#FDE68A",
+    heroBg: "#FFFBEB", heroBorder: "#FDE68A",
+    barColor: "#F59E0B",
+    hdrBg: "#FEF3C7", titleColor: "#451A03", subColor: "#D97706",
+    badgeBg: "#FDE68A", badgeText: "#92400E",
+    stepNumBg: "#FDE68A", stepNumText: "#451A03",
+    description: "Chronic ulceration from venous insufficiency · lower extremity",
+    steps: [
+      "Gently cleanse the wound with normal saline or clean water. Avoid harsh antiseptics.",
+      "Assess and document wound bed colour: red = granulating, yellow = slough, black = necrosis.",
+      "Select an appropriate moist wound dressing based on exudate level (foam, hydrocolloid, or alginate).",
+      "Apply graduated compression bandaging from toes to knee (40 mmHg at ankle) if no arterial disease.",
+      "Elevate legs above heart level for at least 30 minutes, 3–4 times per day.",
+      "Educate patient: avoid prolonged standing, wear prescribed compression stockings daily.",
+      "Refer to a wound care specialist or vascular medicine team for ongoing management plan."
+    ],
+    supplies: ["Sterile saline","Sterile gloves","Wound ruler / measurement tool","Moist wound dressing (foam / hydrocolloid / alginate)","Graduated compression bandage","Wound documentation record","Non-adhesive dressing holder"],
+    warnings: ["Increased pain, odour, warmth, or green/yellow exudate — signs of infection","Wound size increasing despite consistent treatment","Wound present for more than 3 months without progress","Ankle-brachial index below 0.8 — compression contraindicated","Cellulitis spreading outward from wound margins"],
+    doNots: ["Apply strong compression if arterial disease is suspected","Use wet-to-dry dressings — traumatises fragile granulation tissue","Leave wound uncovered — drying severely impairs healing","Use iodine or hydrogen peroxide — cytotoxic to regenerating cells"]
+  }
+};
+
+/* ── MODEL ── */
+const MODEL_URL = "./model_files/";
+let model, webcam;
+
+async function init() {
+  try {
+    model = await tmImage.load(MODEL_URL + "model.json", MODEL_URL + "metadata.json");
+    document.getElementById("model-status").textContent = "Ready";
+    document.getElementById("model-status-header").textContent = "Model ready · offline";
+    document.getElementById("model-dot").style.background = "#22C55E";
+  } catch(e) {
+    document.getElementById("model-status").textContent = "Error";
+    document.getElementById("model-status-header").textContent = "Model load error";
+    document.getElementById("model-dot").style.background = "#EF4444";
+    console.error(e);
+  }
+}
+init();
+
+/* ── WEBCAM ── */
+async function startWebcam() {
+  document.getElementById("image-preview").style.display = "none";
+  document.getElementById("placeholder").style.display = "none";
+  document.getElementById("webcam-container").style.display = "block";
+  document.getElementById("capture-btn").style.display = "inline-flex";
+  webcam = new tmImage.Webcam(400, 400, true);
+  await webcam.setup();
+  await webcam.play();
+  const c = document.getElementById("webcam-container");
+  c.innerHTML = "";
+  c.appendChild(webcam.canvas);
+  webcam.canvas.style.cssText = "width:100%;height:100%;object-fit:cover;";
+  window.requestAnimationFrame(webcamLoop);
+}
+
+async function webcamLoop() {
+  if (webcam) { webcam.update(); window.requestAnimationFrame(webcamLoop); }
+}
+
+async function captureAndAnalyze() {
+  if (!webcam) return;
+  webcam.pause();
+  document.getElementById("scan-ring").classList.add("active");
+  document.getElementById("output").textContent = "Analyzing…";
+  document.getElementById("confidence-label").textContent = "Processing scan";
+  await predict(webcam.canvas);
+  document.getElementById("scan-ring").classList.remove("active");
+  const btn = document.getElementById("capture-btn");
+  btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg> Reset';
+  btn.onclick = () => location.reload();
+}
+
+/* ── UPLOAD ── */
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById("image-preview");
+  const reader = new FileReader();
+  reader.onload = e => {
+    preview.src = e.target.result;
+    preview.style.display = "block";
+    document.getElementById("webcam-container").style.display = "none";
+    document.getElementById("placeholder").style.display = "none";
+    document.getElementById("capture-btn").style.display = "none";
+    document.getElementById("output").textContent = "Analyzing…";
+    document.getElementById("confidence-label").textContent = "Processing";
+    preview.onload = () => predict(preview);
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── PREDICT ── */
+async function predict(source) {
+  if (!model) return;
+  const prediction = await model.predict(source);
+  let best = { className: "", probability: 0 };
+
+  prediction.forEach((p, i) => {
+    const bar = document.getElementById("bar" + i);
+    const lbl = document.getElementById("lbl" + i);
+    const key = p.className.toLowerCase();
+    const proto = PROTOCOLS[key];
+    if (bar) {
+      bar.style.height = Math.round(p.probability * 100) + "%";
+      bar.style.background = proto ? proto.barColor : "#D1D5DB";
+    }
+    if (lbl) lbl.textContent = proto ? proto.label : p.className;
+    if (p.probability > best.probability) best = p;
+  });
+
+  document.getElementById("last-scan").textContent = new Date().toLocaleTimeString();
+
+  const out    = document.getElementById("output");
+  const conf   = document.getElementById("confidence-label");
+  const hero   = document.getElementById("result-hero");
+  const icon   = document.getElementById("wound-icon");
+  const badge  = document.getElementById("severity-badge");
+  const panel  = document.getElementById("protocol-panel");
+  const key    = best.className.toLowerCase();
+  const proto  = PROTOCOLS[key];
+
+  if (best.probability > 0.15 && proto) {
+    const pct = Math.round(best.probability * 100);
+    hero.style.background  = proto.heroBg;
+    hero.style.borderColor = proto.heroBorder;
+    icon.textContent       = proto.icon;
+    out.textContent        = proto.label;
+    out.style.color        = proto.subColor;
+    conf.textContent       = pct + "% confidence";
+    conf.style.color       = proto.subColor;
+    badge.textContent      = proto.severity;
+    badge.style.display    = "inline-block";
+    badge.style.background = proto.sevBg;
+    badge.style.color      = proto.sevText;
+    badge.style.border     = "0.5px solid " + proto.sevBorder;
+    renderProtocol(proto);
+    panel.classList.add("visible");
+    setTimeout(() => panel.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  } else {
+    out.textContent        = "Unidentified";
+    out.style.color        = "#6B7280";
+    conf.textContent       = "Low confidence — try a clearer image";
+    conf.style.color       = "#9CA3AF";
+    hero.style.background  = "#F9FAFB";
+    hero.style.borderColor = "#E5E7EB";
+    icon.textContent       = "🩺";
+    badge.style.display    = "none";
+    panel.classList.remove("visible");
+  }
+}
+
+/* ── RENDER PROTOCOL ── */
+function renderProtocol(p) {
+  const hdr = document.getElementById("proto-header");
+  hdr.style.background = p.hdrBg;
+  const iconEl = document.getElementById("proto-icon");
+  iconEl.textContent = p.icon;
+  iconEl.style.background = p.heroBorder;
+  document.getElementById("proto-title").textContent = p.label + " · First Aid Protocol";
+  document.getElementById("proto-title").style.color = p.titleColor;
+  document.getElementById("proto-sub").textContent   = p.description;
+  document.getElementById("proto-sub").style.color   = p.subColor;
+  const pb = document.getElementById("proto-badge");
+  pb.textContent      = p.severity;
+  pb.style.background = p.badgeBg;
+  pb.style.color      = p.badgeText;
+
+  document.getElementById("proto-steps").innerHTML = p.steps.map((s, i) => `
+    <div class="step-item">
+      <div class="step-num" style="background:${p.stepNumBg};color:${p.stepNumText};">${i + 1}</div>
+      <div class="step-text">${s}</div>
+    </div>`).join("");
+
+  document.getElementById("proto-supplies").innerHTML = p.supplies.map((s, i) => `
+    <div class="supply-item" id="sup${i}" onclick="this.classList.toggle('checked')">
+      <div class="supply-check"></div>
+      <span>${s}</span>
+    </div>`).join("");
+
+  document.getElementById("proto-warnings").innerHTML = p.warnings.map(w => `
+    <div class="warn-item"><div class="warn-dot"></div><span>${w}</span></div>`).join("");
+
+  document.getElementById("proto-donots").innerHTML = p.doNots.map(d => `
+    <div class="do-not-item">${d}</div>`).join("");
+}
+</script>
+</body>
+</html>
