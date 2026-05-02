@@ -1,4 +1,4 @@
-const CACHE_NAME = 'WoundScanAi';
+const CACHE_NAME = 'WoundAi';
 
 // Add every file your app needs here
 // Note: Ensure these paths match your actual folder structure!
