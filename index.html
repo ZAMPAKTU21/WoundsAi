@@ -409,7 +409,7 @@ input[type="file"] { display: none; }
 <script>
 /* ── PROTOCOLS DATABASE ── */
 const PROTOCOLS = {
-  abrasion: {
+  abrasions: {
     label: "Abrasion", icon: "🩹", severity: "Mild",
     sevBg: "#F0FDF4", sevText: "#166534", sevBorder: "#BBF7D0",
     heroBg: "#F0FDF4", heroBorder: "#86EFAC",
@@ -418,15 +418,7 @@ const PROTOCOLS = {
     badgeBg: "#BBF7D0", badgeText: "#166534",
     stepNumBg: "#BBF7D0", stepNumText: "#14532D",
     description: "Skin scraped against rough surface · superficial dermis damage",
-    steps: [
-      "Wash hands or put on clean gloves before touching the wound.",
-      "Rinse the wound under clean running water for at least 5 minutes to flush all debris.",
-      "Gently clean around the wound with mild soap. Do not scrub inside the wound bed.",
-      "Remove visible grit with sterile tweezers; rinse again after each piece removed.",
-      "Pat the wound dry with a sterile gauze pad using gentle dabbing pressure.",
-      "Apply a thin layer of antibiotic ointment (e.g., Neosporin) across the wound surface.",
-      "Cover with a non-stick sterile dressing. Change daily or whenever wet or soiled."
-    ],
+    steps: ["Wash hands or put on clean gloves before touching the wound.", "Rinse the wound under clean running water for at least 5 minutes to flush all debris.", "Gently clean around the wound with mild soap. Do not scrub inside the wound bed.", "Remove visible grit with sterile tweezers; rinse again after each piece removed.", "Pat the wound dry with a sterile gauze pad using gentle dabbing pressure.", "Apply a thin layer of antibiotic ointment (e.g., Neosporin) across the wound surface.", "Cover with a non-stick sterile dressing. Change daily or whenever wet or soiled."],
     supplies: ["Clean gloves","Sterile saline or clean water","Mild soap","Sterile gauze pads","Sterile tweezers","Antibiotic ointment","Non-stick sterile dressing","Medical tape"],
     warnings: ["Redness spreading beyond wound edge after 24 hrs","Swelling or warmth that worsens rather than improves","Yellow or green discharge from the wound","Fever above 38°C / 100.4°F","No visible healing after 5–7 days"],
     doNots: ["Scrub the wound — it damages tissue and delays healing","Use hydrogen peroxide or iodine directly on wound tissue","Cover tightly without airflow if wound is heavily oozing"]
@@ -440,15 +432,7 @@ const PROTOCOLS = {
     badgeBg: "#FECACA", badgeText: "#991B1B",
     stepNumBg: "#FECACA", stepNumText: "#7F1D1D",
     description: "Thermal tissue injury · depth and size determine care urgency",
-    steps: [
-      "Remove the patient from the heat source immediately. Ensure rescuer safety first.",
-      "Cool the burn with cool (NOT ice-cold) running water for a minimum of 20 minutes.",
-      "Remove clothing or jewellery near the burn ONLY if not adhered to the skin.",
-      "Cover loosely with clean cling film or a non-fluffy sterile dressing. Do not wrap tightly.",
-      "Elevate the burned area above heart level to reduce swelling where possible.",
-      "Administer paracetamol or ibuprofen for pain if patient is conscious and able to swallow.",
-      "Seek emergency care for burns larger than the patient's palm, or on face, hands, or genitals."
-    ],
+    steps: ["Remove the patient from the heat source immediately. Ensure rescuer safety first.", "Cool the burn with cool (NOT ice-cold) running water for a minimum of 20 minutes.", "Remove clothing or jewellery near the burn ONLY if not adhered to the skin.", "Cover loosely with clean cling film or a non-fluffy sterile dressing. Do not wrap tightly.", "Elevate the burned area above heart level to reduce swelling where possible.", "Administer paracetamol or ibuprofen for pain if patient is conscious and able to swallow.", "Seek emergency care for burns larger than the patient's palm, or on face, hands, or genitals."],
     supplies: ["Cool water source (running)","Sterile burn dressing or clean cling film","Sterile gauze","Non-adhesive dressing","Paracetamol / ibuprofen","Clean scissors (for clothing if needed)"],
     warnings: ["Burn larger than the patient's hand","White, brown, or black skin indicating deep burns","Burns on face, hands, feet, joints, or genitals","Signs of smoke inhalation: hoarse voice, singed nasal hair","Patient in shock: pale, cold, clammy, or confused","Electrical or chemical burn source"],
     doNots: ["Apply ice, butter, toothpaste, or oil to the burn","Break blisters — high infection risk","Pull away clothing stuck to burned skin","Use fluffy cotton or adhesive bandages directly on burn surface"]
@@ -462,15 +446,7 @@ const PROTOCOLS = {
     badgeBg: "#C4B5FD", badgeText: "#5B21B6",
     stepNumBg: "#C4B5FD", stepNumText: "#3B0764",
     description: "Blunt trauma causing subcutaneous haemorrhage without skin break",
-    steps: [
-      "Apply an ice pack wrapped in a cloth to the area within 15 minutes of injury.",
-      "Hold for 15–20 minutes. Repeat every 2–3 hours during the first 24 hours.",
-      "Compress the area gently with an elastic bandage to limit swelling. Not too tight.",
-      "Elevate the affected limb above heart level to reduce blood pooling.",
-      "After 48 hours, switch to warm compresses to promote blood reabsorption.",
-      "Administer paracetamol for pain relief if needed. Avoid aspirin in first 48 hrs.",
-      "Monitor size and colour daily. Most bruises fully resolve within 7–14 days."
-    ],
+    steps: ["Apply an ice pack wrapped in a cloth to the area within 15 minutes of injury.", "Hold for 15–20 minutes. Repeat every 2–3 hours during the first 24 hours.", "Compress the area gently with an elastic bandage to limit swelling. Not too tight.", "Elevate the affected limb above heart level to reduce blood pooling.", "After 48 hours, switch to warm compresses to promote blood reabsorption.", "Administer paracetamol for pain relief if needed. Avoid aspirin in first 48 hrs.", "Monitor size and colour daily. Most bruises fully resolve within 7–14 days."],
     supplies: ["Ice pack or cold compress","Cloth wrap for ice protection","Elastic compression bandage","Warm compress (from 48 hrs onward)","Paracetamol (avoid aspirin initially)"],
     warnings: ["Bruise on head with confusion, vomiting, or vision changes","Very large bruise resulting from a minor impact","Bruise with no recalled mechanism of injury","Rapidly expanding, hard, firm swelling","Severe pain or inability to bear weight — possible fracture"],
     doNots: ["Apply ice directly to skin — risk of frostbite","Give aspirin in first 48 hrs — may worsen bruising","Massage the bruised area — may increase internal bleeding"]
@@ -484,15 +460,7 @@ const PROTOCOLS = {
     badgeBg: "#FECDD3", badgeText: "#9F1239",
     stepNumBg: "#FECDD3", stepNumText: "#881337",
     description: "Skin incision from a sharp edge · depth determines management",
-    steps: [
-      "Apply firm direct pressure with sterile gauze or a clean cloth for at least 10 minutes without lifting.",
-      "If blood soaks through, layer more gauze on top — do not remove the first layer.",
-      "Once bleeding slows, gently rinse the cut under clean running water for 5 minutes.",
-      "Clean around wound edges with mild soap. Pat dry with sterile gauze.",
-      "Close small superficial cuts using butterfly strips or steri-strips if edges align cleanly.",
-      "Apply antibiotic ointment and cover with a sterile non-stick dressing.",
-      "Refer to a physician for cuts deeper than 0.5 cm, gaping, or located on face or joints."
-    ],
+    steps: ["Apply firm direct pressure with sterile gauze or a clean cloth for at least 10 minutes without lifting.", "If blood soaks through, layer more gauze on top — do not remove the first layer.", "Once bleeding slows, gently rinse the cut under clean running water for 5 minutes.", "Clean around wound edges with mild soap. Pat dry with sterile gauze.", "Close small superficial cuts using butterfly strips or steri-strips if edges align cleanly.", "Apply antibiotic ointment and cover with a sterile non-stick dressing.", "Refer to a physician for cuts deeper than 0.5 cm, gaping, or located on face or joints."],
     supplies: ["Clean gloves","Sterile gauze pads","Butterfly strips / steri-strips","Antibiotic ointment","Non-stick sterile dressing","Medical tape","Blunt scissors"],
     warnings: ["Bleeding does not slow after 10–15 minutes of firm pressure","Cut is deep, gaping, or edges will not stay closed","Tendon, fat tissue, or bone visible in wound","Wound caused by animal bite or rusty/contaminated object","Numbness or loss of movement below the cut"],
     doNots: ["Remove any embedded object from the wound","Probe wound depth with fingers or instruments","Close a heavily contaminated wound — leave open and refer","Apply tourniquet unless trained and severe arterial bleeding is present"]
@@ -506,15 +474,7 @@ const PROTOCOLS = {
     badgeBg: "#FDE68A", badgeText: "#92400E",
     stepNumBg: "#FDE68A", stepNumText: "#451A03",
     description: "Chronic ulceration from venous insufficiency · lower extremity",
-    steps: [
-      "Gently cleanse the wound with normal saline or clean water. Avoid harsh antiseptics.",
-      "Assess and document wound bed colour: red = granulating, yellow = slough, black = necrosis.",
-      "Select an appropriate moist wound dressing based on exudate level (foam, hydrocolloid, or alginate).",
-      "Apply graduated compression bandaging from toes to knee (40 mmHg at ankle) if no arterial disease.",
-      "Elevate legs above heart level for at least 30 minutes, 3–4 times per day.",
-      "Educate patient: avoid prolonged standing, wear prescribed compression stockings daily.",
-      "Refer to a wound care specialist or vascular medicine team for ongoing management plan."
-    ],
+    steps: ["Gently cleanse the wound with normal saline or clean water. Avoid harsh antiseptics.", "Assess and document wound bed colour: red = granulating, yellow = slough, black = necrosis.", "Select an appropriate moist wound dressing based on exudate level (foam, hydrocolloid, or alginate).", "Apply graduated compression bandaging from toes to knee (40 mmHg at ankle) if no arterial disease.", "Elevate legs above heart level for at least 30 minutes, 3–4 times per day.", "Educate patient: avoid prolonged standing, wear prescribed compression stockings daily.", "Refer to a wound care specialist or vascular medicine team for ongoing management plan."],
     supplies: ["Sterile saline","Sterile gloves","Wound ruler / measurement tool","Moist wound dressing (foam / hydrocolloid / alginate)","Graduated compression bandage","Wound documentation record","Non-adhesive dressing holder"],
     warnings: ["Increased pain, odour, warmth, or green/yellow exudate — signs of infection","Wound size increasing despite consistent treatment","Wound present for more than 3 months without progress","Ankle-brachial index below 0.8 — compression contraindicated","Cellulitis spreading outward from wound margins"],
     doNots: ["Apply strong compression if arterial disease is suspected","Use wet-to-dry dressings — traumatises fragile granulation tissue","Leave wound uncovered — drying severely impairs healing","Use iodine or hydrogen peroxide — cytotoxic to regenerating cells"]
